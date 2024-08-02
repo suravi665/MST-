@@ -1,0 +1,126 @@
+#include <stdio.h>
+#include <limits.h>
+
+int parent[10];
+
+void kruskals(int cost[10][10], int n) {
+    int mincost = 0, ne, a, b, min, u, v;
+    int kruskalMST[10][2];
+    ne = 1;
+
+    while (ne < n) {
+        for (min = 9999, u = 1; u <= n; u++) {
+            for (v = 1; v <= n; v++) {
+                if (cost[u][v] < min) {
+                    min = cost[u][v];
+                    a = u;
+                    b = v;
+                }
+            }
+        }
+
+        while (parent[a])
+            a = parent[a];
+        while (parent[b])
+            b = parent[b];
+
+        if (b != a) {
+            kruskalMST[ne][0] = a;
+            kruskalMST[ne][1] = b;
+            ne++;
+            mincost += min;
+            parent[b] = a;
+        }
+
+        cost[a][b] = cost[b][a] = 9999;
+    }
+
+    printf("\nKruskal's Algorithm:\n");
+    for (int i = 1; i < ne; i++) {
+        printf("%d edge(%d,%d)\n", i, kruskalMST[i][0], kruskalMST[i][1]);
+    }
+    printf("The minimum cost of spanning tree is %d\n", mincost);
+}
+
+void Prims(int cost[10][10], int n) {
+    int visited[10], i, j, ne, a, b, u, v, min;
+    int mincost = 0;
+    int primMST[10][2];
+
+    for (i = 2; i <= n; i++)
+        visited[i] = 0;
+    visited[1] = 1;
+    ne = 1;
+
+    while (ne < n) {
+        for (min = 9999, i = 1; i <= n; i++) {
+            for (j = 1; j <= n; j++) {
+                if (cost[i][j] < min) {
+                    if (visited[i] == 0)
+                        continue;
+                    else {
+                        min = cost[i][j];
+                        a = u = i;
+                        b = v = j;
+                    }
+                }
+            }
+        }
+
+        if (visited[u] == 0 || visited[v] == 0) {
+            primMST[ne][0] = a;
+            primMST[ne][1] = b;
+            ne++;
+            mincost += min;
+            visited[v] = 1;
+        }
+
+        cost[a][b] = cost[b][a] = 9999;
+    }
+
+    printf("\nPrim's Algorithm:\n");
+    for (int i = 1; i < ne; i++) {
+        printf("%d edge(%d,%d)\n", i, primMST[i][0], primMST[i][1]);
+    }
+    printf("The minimum cost of spanning tree is %d\n", mincost);
+}
+
+int main() {
+    int n;
+    int cost[10][10], costCopy[10][10];
+
+    printf("Enter the number of vertices: ");
+    scanf("%d", &n);
+
+    printf("Enter the cost matrix:\n");
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            scanf("%d", &cost[i][j]);
+            costCopy[i][j] = cost[i][j];
+            if (cost[i][j] == 0)
+                cost[i][j] = 9999;
+        }
+    }
+
+    Prims(cost, n);
+
+    // Reset cost matrix for Kruskal's algorithm
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            cost[i][j] = costCopy[i][j];
+            if (cost[i][j] == 0)
+                cost[i][j] = 9999;
+        }
+    }
+
+    kruskals(cost, n);
+
+    printf("\nTime complexity:\n");
+    printf("Prim's Algorithm: O(n^2)\n");
+    printf("Kruskal's Algorithm: O(E log E)\n");
+
+    printf("\nFor dense graphs with a large number of edges, Prim's algorithm is generally more efficient.\n");
+    printf("For sparse graphs with fewer edges, Kruskal's algorithm can be more efficient.\n");
+
+    return 0;
+}
